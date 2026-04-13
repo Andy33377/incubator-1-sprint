@@ -1,20 +1,51 @@
-import Box, { type TaskType } from "./components/Box";
+import { useState } from "react";
 
-function App() {
-  //data
-  const title_1 = "what to learn";
+import OnOff from "./components/OnOff";
+import FullInput from "./components/FullInput";
 
-  const task_1: TaskType[] = [
-    { id: 1, title: "JS", isDone: false },
-    { id: 2, title: "TS", isDone: false },
-    { id: 3, title: "C#", isDone: false },
-  ];
+type messageList = {
+  id: number;
+  title: string;
+};
+
+export default function App() {
+  const [message, setMessage] = useState<messageList[]>([
+    { id: 1, title: "message 1" },
+    { id: 2, title: "message 2" },
+    { id: 3, title: "message 3" },
+  ]);
+
+  const addMsg = (title: string) => {
+    if (title.trim() === "") return;
+
+    const newMsg = {
+      id: Date.now(),
+      title: title,
+    };
+
+    setMessage((prev) => [...prev, newMsg]);
+  };
+
+  const removeAllMsgButton = () => {
+    setMessage([]);
+  };
+
+  const removeMsg = (id: number) => {
+    setMessage((prev) => prev.filter((el) => el.id !== id));
+  };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <Box title={title_1} tasks={task_1} />
+    <div>
+      <FullInput addMsg={addMsg} />
+      {message.map((el) => {
+        return (
+          <div key={el.id}>
+            {el.title}
+            <button onClick={() => removeMsg(el.id)}>clean</button>
+          </div>
+        );
+      })}
+      <button onClick={removeAllMsgButton}>delete all message</button> */
     </div>
   );
 }
-
-export default App;
