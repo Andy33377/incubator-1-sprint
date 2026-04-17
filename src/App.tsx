@@ -1,51 +1,102 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 
-import OnOff from "./components/OnOff";
-import FullInput from "./components/FullInput";
-
-type messageList = {
+type Task = {
   id: number;
   title: string;
+  isDone: boolean;
 };
 
+type Filter = "all" | "active" | "completed";
+
 export default function App() {
-  const [message, setMessage] = useState<messageList[]>([
-    { id: 1, title: "message 1" },
-    { id: 2, title: "message 2" },
-    { id: 3, title: "message 3" },
+  const [tasks, setTasks] = useState<Task[]>([
+    { id: 1, title: "HTML&CSS", isDone: true },
+    { id: 2, title: "JS", isDone: true },
+    { id: 3, title: "ReactJS", isDone: false },
+    { id: 4, title: "Rest API", isDone: false },
+    { id: 5, title: "GraphQL", isDone: false },
   ]);
 
-  const addMsg = (title: string) => {
-    if (title.trim() === "") return;
+  const [title, setTitle] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+  let [error, setError] = useState<string | null>(null);
 
-    const newMsg = {
+  const addTask = () => {
+    if (!title.trim()) {
+      setError("Title is required");
+      return;
+    }
+
+    const newTask: Task = {
       id: Date.now(),
-      title: title,
+      title,
+      isDone: false,
     };
 
-    setMessage((prev) => [...prev, newMsg]);
+    setTasks((prev) => [newTask, ...prev]);
+    setTitle("");
+    setError("");
+  };
+  const removeTask = (id: number) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const removeAllMsgButton = () => {
-    setMessage([]);
+  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
   };
 
-  const removeMsg = (id: number) => {
-    setMessage((prev) => prev.filter((el) => el.id !== id));
+  const changeStatus = (taskId: number, isDone: boolean) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, isDone } : t)),
+    );
+  };
+
+  const getFilteredTasks = () => {
+    if (filter === "active") return tasks.filter((t) => !t.isDone);
+    if (filter === "completed") return tasks.filter((t) => t.isDone);
+    return tasks;
   };
 
   return (
-    <div>
-      <FullInput addMsg={addMsg} />
-      {message.map((el) => {
-        return (
-          <div key={el.id}>
-            {el.title}
-            <button onClick={() => removeMsg(el.id)}>clean</button>
-          </div>
-        );
-      })}
-      <button onClick={removeAllMsgButton}>delete all message</button> */
+    <div style={{ padding: "20px", maxWidth: "400px" }}>
+      <h2>What to learn</h2>
+
+      <div>
+        <input
+          value={title}
+          onChange={handleInput}
+          className={error ? "error" : ""}
+        />
+        <button onClick={addTask}>+</button>
+        {error && <div className="error-message">{error}</div>}
+      </div>
+
+      <ul>
+        {getFilteredTasks().map((task) => (
+          <li key={task.id}>
+            <input
+              type="checkbox"
+              onChange={(e) => changeStatus(task.id, e.target.checked)}
+              checked={task.isDone}
+            />
+            <span
+              style={{
+                textDecoration: task.isDone ? "line-through" : "none",
+                margin: "0 10px",
+              }}
+            >
+              {task.title}
+            </span>
+            <button onClick={() => removeTask(task.id)}>x</button>
+          </li>
+        ))}
+      </ul>
+
+      <div>
+        <button onClick={() => setFilter("all")}>All</button>
+        <button onClick={() => setFilter("active")}>Active</button>
+        <button onClick={() => setFilter("completed")}>Completed</button>
+      </div>
     </div>
   );
 }
