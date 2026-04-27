@@ -93,9 +93,24 @@ export default function App() {
       </ul>
 
       <div>
-        <button onClick={() => setFilter("all")}>All</button>
-        <button onClick={() => setFilter("active")}>Active</button>
-        <button onClick={() => setFilter("completed")}>Completed</button>
+        <button
+          className={filter === "all" ? "active-filter" : ""}
+          onClick={() => setFilter("all")}
+        >
+          All
+        </button>
+        <button
+          className={filter === "active" ? "active-filter" : ""}
+          onClick={() => setFilter("active")}
+        >
+          Active
+        </button>
+        <button
+          className={filter === "completed" ? "active-filter" : ""}
+          onClick={() => setFilter("completed")}
+        >
+          Completed
+        </button>
       </div>
     </div>
   );
